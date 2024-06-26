@@ -1,9 +1,9 @@
 import time
+import json
 from settings import model
 
 input_file_path = "C:\\Users\\ragar\\Desktop\\BridgeLabz_tasks\\GenAI\\GenAI\\Reviews.txt"
-output_file_path = "C:\\Users\\ragar\\Desktop\\BridgeLabz_tasks\\GenAI\\GenAI\\Sentiment_Analysis.txt"
-
+output_file_path = "C:\\Users\\ragar\\Desktop\\BridgeLabz_tasks\\GenAI\\GenAI\\Sentiment_Analysis.json"
 
 def read_file(file_path):
     with open(file_path, 'r', encoding="utf-8") as file:
@@ -19,15 +19,24 @@ def process_reviews(reviews):
                                               - brand: [mention the brand if available, else 'unknown'],
                                               - product: [mention the product if available, else 'unknown'],
                                               - sentiment: [positive, negative, or neutral]""")
-        responses.append(response.text)
-        print(response.text)
+        response_text = response.text.strip().strip('```')
+
+        print(f"Response Text: {response_text}")
+        
+        try:
+            response_json = json.loads(response_text)
+            responses.append(response_json)
+            print(response_json)
+        except json.JSONDecodeError as e:
+            print(f"Error decoding JSON: {e}")
+            print(f"Response was: {response_text}")
+        
         time.sleep(2)
     return responses
 
 def save_responses(file_path, responses):
     with open(file_path, "w", encoding="utf-8") as file:
-        for response in responses:
-            file.write(response + '\n')
+        json.dump(responses, file, ensure_ascii=False, indent=4)
 
 reviews = read_file(input_file_path)
 responses = process_reviews(reviews)
